@@ -1,14 +1,10 @@
 <script lang="ts">
+	import { sceneStore } from '$lib/store';
 	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 	let earthcanvas: HTMLCanvasElement;
-	let previousMouseX = 0;
-	let previousMouseY = 0;
-	let accumulatedRotationX = 0;
-	let accumulatedRotationY = 0;
-
 	let cameraZoom = 15; // Initial camera zoom
 
 	onMount(() => {
@@ -26,39 +22,13 @@
 		const earth = new THREE.Mesh(geometry, material);
 		scene.add(earth);
 
+		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.update();
+
 		// Set camera position
 		camera.position.z = cameraZoom;
 
 		let isMousePressed = false;
-
-		// Handle mouse click to enable controls
-		document.addEventListener('mousedown', (event) => {
-			isMousePressed = true;
-		});
-
-		document.addEventListener('mouseup', () => {
-			isMousePressed = false;
-
-			accumulatedRotationX = earth.rotation.x;
-			accumulatedRotationY = earth.rotation.y;
-		});
-
-		// Handle mouse movement
-		document.addEventListener('mousemove', (event) => {
-			if (isMousePressed) {
-				const deltaX = event.clientX - previousMouseX;
-				const deltaY = event.clientY - previousMouseY;
-
-				accumulatedRotationY += deltaX * 0.005;
-				accumulatedRotationX += deltaY * 0.005;
-
-				earth.rotation.y = accumulatedRotationY;
-				earth.rotation.x = accumulatedRotationX;
-
-				previousMouseX = event.clientX;
-				previousMouseY = event.clientY;
-			}
-		});
 
 		// Handle mouse wheel for zoom
 		document.addEventListener('wheel', (event) => {
@@ -85,6 +55,7 @@
 		};
 
 		animate();
+		sceneStore.set(scene);
 	});
 </script>
 
