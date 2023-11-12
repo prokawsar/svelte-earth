@@ -6,12 +6,19 @@
 
 	let earthcanvas: HTMLCanvasElement;
 	let cameraZoom = 15; // Initial camera zoom
+	let camera: THREE.PerspectiveCamera, renderer: THREE.Renderer, scene: THREE.Scene;
+
+	const onWindowResize = () => {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+	};
 
 	onMount(() => {
 		// Set up scene, camera, and renderer
-		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100);
-		const renderer = new THREE.WebGLRenderer({ alpha: true, canvas: earthcanvas });
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100);
+		renderer = new THREE.WebGLRenderer({ alpha: false, canvas: earthcanvas });
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
 		// Create Earth geometry and texture
@@ -23,27 +30,15 @@
 		scene.add(earth);
 
 		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.rotateSpeed = 0.4;
 		controls.update();
 
 		// Set camera position
 		camera.position.z = cameraZoom;
+		camera.position.x = 0;
+		camera.position.y = 0;
 
-		let isMousePressed = false;
-
-		// Handle mouse wheel for zoom
-		document.addEventListener('wheel', (event) => {
-			// Adjust the zoom speed as needed
-			const zoomSpeed = 0.1;
-
-			// Update the camera zoom based on the wheel delta
-			cameraZoom -= event.deltaY * zoomSpeed;
-
-			// Limit the zoom range if necessary
-			cameraZoom = Math.max(cameraZoom, 5); // Minimum zoom
-			cameraZoom = Math.min(cameraZoom, 30); // Maximum zoom
-
-			camera.position.z = cameraZoom;
-		});
+		window.addEventListener('resize', onWindowResize, false);
 
 		// Animation function
 		const animate = () => {
