@@ -3,10 +3,12 @@
 	import { onDestroy, onMount } from 'svelte'
 	import * as THREE from 'three'
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+	import ThreeGlobe from 'three-globe'
 
 	let earthcanvas: HTMLCanvasElement
 	let cameraZoom = 15 // Initial camera zoom
 	let camera: THREE.PerspectiveCamera, renderer: THREE.Renderer, scene: THREE.Scene
+	let _globe
 
 	const initVariables = () => {
 		// Set up scene, camera, and renderer
@@ -30,16 +32,25 @@
 
 	onMount(() => {
 		initVariables()
-		setEarthGeo()
+		setEarthImage()
 		setControls()
 		setCamera()
 		animate()
+		initGlobe()
 
 		window.addEventListener('resize', onWindowResize, false)
 		sceneStore.set(scene)
 	})
 
-	const setEarthGeo = () => {
+	const initGlobe = () => {
+		_globe = new ThreeGlobe({
+			animateIn: true
+		})
+
+		// scene.add(_globe)
+	}
+
+	const setEarthImage = () => {
 		// Create Earth geometry and texture
 		const geometry = new THREE.SphereGeometry(8, 80, 80)
 		const textureLoader = new THREE.TextureLoader()
